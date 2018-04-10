@@ -42,6 +42,10 @@ public class KVConfigManager {
         this.namesrvController = namesrvController;
     }
 
+    /**
+     * 从文件系统加载key-value信息
+     * 文件内容为json格式
+     */
     public void load() {
         String content = null;
         try {
@@ -59,6 +63,14 @@ public class KVConfigManager {
         }
     }
 
+    /**
+     * 存储k-v
+     * 使用了读写分离锁，确保线程安全，提高性能
+     * 每次变化都会进行持久化--存储到文件
+     * @param namespace 命名空间
+     * @param key
+     * @param value
+     */
     public void putKVConfig(final String namespace, final String key, final String value) {
         try {
             this.lock.writeLock().lockInterruptibly();
@@ -88,6 +100,10 @@ public class KVConfigManager {
         this.persist();
     }
 
+    /**
+     * 持久化
+     * 使用readLock
+     */
     public void persist() {
         try {
             this.lock.readLock().lockInterruptibly();
@@ -112,6 +128,13 @@ public class KVConfigManager {
 
     }
 
+    /**
+     * 删除指定命名空间下的key
+     * 使用writeLock
+     * 并持久化到文件
+     * @param namespace
+     * @param key
+     */
     public void deleteKVConfig(final String namespace, final String key) {
         try {
             this.lock.writeLock().lockInterruptibly();
@@ -132,6 +155,13 @@ public class KVConfigManager {
         this.persist();
     }
 
+    /**
+     * 取得指定命名空间下的kv
+     * 返回字节数组
+     * 使用readLock
+     * @param namespace
+     * @return
+     */
     public byte[] getKVListByNamespace(final String namespace) {
         try {
             this.lock.readLock().lockInterruptibly();
