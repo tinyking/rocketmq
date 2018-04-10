@@ -76,6 +76,15 @@ public class NamesrvController {
         this.configuration.setStorePathFromConfig(this.namesrvConfig, "configStorePath");
     }
 
+    /**
+     * 1. 加载kv
+     * 2. 初始化netty server
+     * 3. 初始化远程请求的处理线程池
+     * 4. 注册请求处理器
+     * 5. 启动死亡broker的检查调度
+     * 6. 启动kv日志输出调度
+     * @return
+     */
     public boolean initialize() {
 
         this.kvConfigManager.load();
@@ -120,6 +129,7 @@ public class NamesrvController {
     }
 
     public void start() throws Exception {
+        // TODO 启动netty服务器
         this.remotingServer.start();
     }
 
