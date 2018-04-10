@@ -111,6 +111,7 @@ public class NamesrvStartup {
                 System.exit(-3);
             }
 
+            // 注册shundown钩子，释放name server资源
             Runtime.getRuntime().addShutdownHook(new ShutdownHookThread(log, new Callable<Void>() {
                 @Override
                 public Void call() throws Exception {

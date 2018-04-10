@@ -180,6 +180,7 @@ public class DefaultMQProducerImpl implements MQProducerInner {
                 break;
         }
 
+        // TODO 启动后，发送心跳服务
         this.mQClientFactory.sendHeartbeatToAllBrokerWithLock();
     }
 
@@ -449,9 +450,13 @@ public class DefaultMQProducerImpl implements MQProducerInner {
             MessageQueue mq = null;
             Exception exception = null;
             SendResult sendResult = null;
+
+            // TODO 重试次数
             int timesTotal = communicationMode == CommunicationMode.SYNC ? 1 + this.defaultMQProducer.getRetryTimesWhenSendFailed() : 1;
             int times = 0;
             String[] brokersSent = new String[timesTotal];
+
+            // TODO 通过for循环实现重试机制
             for (; times < timesTotal; times++) {
                 String lastBrokerName = null == mq ? null : mq.getBrokerName();
                 MessageQueue mqSelected = this.selectOneMessageQueue(topicPublishInfo, lastBrokerName);
@@ -463,6 +468,7 @@ public class DefaultMQProducerImpl implements MQProducerInner {
                         sendResult = this.sendKernelImpl(msg, mq, communicationMode, sendCallback, topicPublishInfo, timeout);
                         endTimestamp = System.currentTimeMillis();
                         this.updateFaultItem(mq.getBrokerName(), endTimestamp - beginTimestampPrev, false);
+                        // TODO 通信模式：异步、同步、oneway。 oneway不关注结果。异步采用回调的模式实现
                         switch (communicationMode) {
                             case ASYNC:
                                 return null;

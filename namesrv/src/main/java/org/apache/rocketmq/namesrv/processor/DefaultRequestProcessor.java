@@ -72,6 +72,7 @@ public class DefaultRequestProcessor implements NettyRequestProcessor {
                 request);
         }
 
+        // 根据request code来区分请求的具体处理逻辑
         switch (request.getCode()) {
             case RequestCode.PUT_KV_CONFIG:
                 return this.putKVConfig(ctx, request);

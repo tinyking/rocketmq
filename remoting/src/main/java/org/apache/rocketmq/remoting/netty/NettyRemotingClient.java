@@ -190,6 +190,7 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
                 }
             });
 
+        // TODO 定时处理response回调
         this.timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {

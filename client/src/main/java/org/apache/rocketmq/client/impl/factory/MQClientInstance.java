@@ -367,6 +367,7 @@ public class MQClientInstance {
      */
     private void cleanOfflineBroker() {
         try {
+            // TODO 自旋锁
             if (this.lockNamesrv.tryLock(LOCK_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS))
                 try {
                     ConcurrentHashMap<String, HashMap<Long, String>> updatedTable = new ConcurrentHashMap<String, HashMap<Long, String>>();
@@ -585,6 +586,7 @@ public class MQClientInstance {
         }
     }
 
+    // TODO 更新路由信息
     public boolean updateTopicRouteInfoFromNameServer(final String topic, boolean isDefault,
         DefaultMQProducer defaultMQProducer) {
         try {
@@ -842,11 +844,13 @@ public class MQClientInstance {
         }
     }
 
+    // TODO 注册comsumer
     public boolean registerConsumer(final String group, final MQConsumerInner consumer) {
         if (null == group || null == consumer) {
             return false;
         }
 
+        // TODO 使用ConcurrentHashMap存储，这种情况下，一个group就只能有一个consumer，只有第一次注册成功的consumer会存储. 注册信息存储在本Appliction JVM内存，启动多个实例不影响
         MQConsumerInner prev = this.consumerTable.putIfAbsent(group, consumer);
         if (prev != null) {
             log.warn("the consumer group[" + group + "] exist already.");
@@ -906,6 +910,7 @@ public class MQClientInstance {
         }
     }
 
+    // TODO 同consumer注册
     public boolean registerProducer(final String group, final DefaultMQProducerImpl producer) {
         if (null == group || null == producer) {
             return false;

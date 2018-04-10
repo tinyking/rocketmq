@@ -38,16 +38,24 @@ import org.slf4j.LoggerFactory;
 public class NamesrvController {
     private static final Logger log = LoggerFactory.getLogger(LoggerName.NAMESRV_LOGGER_NAME);
 
+    // name server 配置信息
     private final NamesrvConfig namesrvConfig;
 
+    // Netty Server 配置信息
     private final NettyServerConfig nettyServerConfig;
 
+    // 定时任务线程池
     private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryImpl(
         "NSScheduledThread"));
+    // kv配置管理
     private final KVConfigManager kvConfigManager;
+
+    // 路由信息管理
     private final RouteInfoManager routeInfoManager;
 
+    // Netty Server
     private RemotingServer remotingServer;
+
 
     private BrokerHousekeepingService brokerHousekeepingService;
 
@@ -79,6 +87,7 @@ public class NamesrvController {
 
         this.registerProcessor();
 
+        // 定时排查存活broker
         this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
 
             @Override
@@ -87,6 +96,7 @@ public class NamesrvController {
             }
         }, 5, 10, TimeUnit.SECONDS);
 
+        // 定时输出kv信息
         this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
 
             @Override
@@ -104,7 +114,7 @@ public class NamesrvController {
             this.remotingServer.registerDefaultProcessor(new ClusterTestRequestProcessor(this, namesrvConfig.getProductEnvName()),
                 this.remotingExecutor);
         } else {
-
+            // 注册请求处理器，所有的请求都通过DefaultRequestProcessor处理
             this.remotingServer.registerDefaultProcessor(new DefaultRequestProcessor(this), this.remotingExecutor);
         }
     }
@@ -113,6 +123,7 @@ public class NamesrvController {
         this.remotingServer.start();
     }
 
+    // 停止的时候，需要释放netty socket资源，线程池资源
     public void shutdown() {
         this.remotingServer.shutdown();
         this.remotingExecutor.shutdown();
