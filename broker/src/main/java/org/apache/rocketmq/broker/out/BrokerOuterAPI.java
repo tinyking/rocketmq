@@ -159,6 +159,7 @@ public class BrokerOuterAPI {
         requestBody.setFilterServerList(filterServerList);
         request.setBody(requestBody.encode());
 
+        // 发通知，不关心结果
         if (oneway) {
             try {
                 this.remotingClient.invokeOneway(namesrvAddr, request, timeoutMills);

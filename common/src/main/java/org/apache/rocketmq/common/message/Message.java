@@ -21,12 +21,18 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 消息实体
+ */
 public class Message implements Serializable {
     private static final long serialVersionUID = 8445773977080406428L;
 
+    // TOPIC
     private String topic;
+    // 标志
     private int flag;
     private Map<String, String> properties;
+    // 消息内容
     private byte[] body;
 
     public Message() {
