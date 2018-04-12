@@ -92,10 +92,13 @@ public class BrokerController {
     private static final Logger log = LoggerFactory.getLogger(LoggerName.BROKER_LOGGER_NAME);
     private static final Logger LOG_PROTECTION = LoggerFactory.getLogger(LoggerName.PROTECTION_LOGGER_NAME);
     private static final Logger LOG_WATER_MARK = LoggerFactory.getLogger(LoggerName.WATER_MARK_LOGGER_NAME);
+
     private final BrokerConfig brokerConfig;
     private final NettyServerConfig nettyServerConfig;
     private final NettyClientConfig nettyClientConfig;
     private final MessageStoreConfig messageStoreConfig;
+
+    // TODO
     private final ConsumerOffsetManager consumerOffsetManager;
     private final ConsumerManager consumerManager;
     private final ConsumerFilterManager consumerFilterManager;
@@ -107,7 +110,9 @@ public class BrokerController {
     private final Broker2Client broker2Client;
     private final SubscriptionGroupManager subscriptionGroupManager;
     private final ConsumerIdsChangeListener consumerIdsChangeListener;
+
     private final RebalanceLockManager rebalanceLockManager = new RebalanceLockManager();
+    // Netty Client用来和Name Server通信
     private final BrokerOuterAPI brokerOuterAPI;
     private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryImpl(
         "BrokerControllerScheduledThread"));
@@ -198,6 +203,7 @@ public class BrokerController {
     }
 
     public boolean initialize() throws CloneNotSupportedException {
+        // 加载topic配置信息
         boolean result = this.topicConfigManager.load();
 
         result = result && this.consumerOffsetManager.load();
@@ -206,6 +212,7 @@ public class BrokerController {
 
         if (result) {
             try {
+                // 初始化消息存储
                 this.messageStore =
                     new DefaultMessageStore(this.messageStoreConfig, this.brokerStatsManager, this.messageArrivingListener,
                         this.brokerConfig);
@@ -220,9 +227,11 @@ public class BrokerController {
             }
         }
 
+        // 加载消息
         result = result && this.messageStore.load();
 
         if (result) {
+            // Netty Server
             this.remotingServer = new NettyRemotingServer(this.nettyServerConfig, this.clientHousekeepingService);
             NettyServerConfig fastConfig = (NettyServerConfig) this.nettyServerConfig.clone();
             fastConfig.setListenPort(nettyServerConfig.getListenPort() - 2);

@@ -112,6 +112,7 @@ public class BrokerStartup {
                 messageStoreConfig.setAccessMessageInMemoryMaxRatio(ratio);
             }
 
+            // TODO 用户指定配置文件
             if (commandLine.hasOption('c')) {
                 String file = commandLine.getOptionValue('c');
                 if (file != null) {
@@ -121,6 +122,7 @@ public class BrokerStartup {
                     properties.load(in);
 
                     properties2SystemEnv(properties);
+                    // TODO  通过反射，将properties转换成对象
                     MixAll.properties2Object(properties, brokerConfig);
                     MixAll.properties2Object(properties, nettyServerConfig);
                     MixAll.properties2Object(properties, nettyClientConfig);

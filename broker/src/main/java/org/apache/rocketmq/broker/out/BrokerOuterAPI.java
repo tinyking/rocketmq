@@ -47,6 +47,9 @@ import org.apache.rocketmq.remoting.protocol.RemotingCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * broker中的client，包含了name server的client
+ */
 public class BrokerOuterAPI {
     private static final Logger log = LoggerFactory.getLogger(LoggerName.BROKER_LOGGER_NAME);
     private final RemotingClient remotingClient;
@@ -111,6 +114,7 @@ public class BrokerOuterAPI {
 
         List<String> nameServerAddressList = this.remotingClient.getNameServerAddressList();
         if (nameServerAddressList != null) {
+            // 遍历Name Server列表，分别向每个Name Server注册broker
             for (String namesrvAddr : nameServerAddressList) {
                 try {
                     RegisterBrokerResult result = this.registerBroker(namesrvAddr, clusterName, brokerAddr, brokerName, brokerId,
