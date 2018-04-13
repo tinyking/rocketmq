@@ -164,6 +164,7 @@ public class ConsumeMessageConcurrentlyService implements ConsumeMessageService 
         log.info("consumeMessageDirectly receive new message: {}", msg);
 
         try {
+            // TODO 回调
             ConsumeConcurrentlyStatus status = this.messageListener.consumeMessage(msgs, context);
             if (status != null) {
                 switch (status) {
@@ -246,6 +247,9 @@ public class ConsumeMessageConcurrentlyService implements ConsumeMessageService 
         }
     }
 
+    /**
+     * 清理过期消息
+     */
     private void cleanExpireMsg() {
         Iterator<Map.Entry<MessageQueue, ProcessQueue>> it =
             this.defaultMQPushConsumerImpl.getRebalanceImpl().getProcessQueueTable().entrySet().iterator();
@@ -256,6 +260,12 @@ public class ConsumeMessageConcurrentlyService implements ConsumeMessageService 
         }
     }
 
+    /**
+     *
+     * @param status
+     * @param context
+     * @param consumeRequest
+     */
     public void processConsumeResult(
         final ConsumeConcurrentlyStatus status,
         final ConsumeConcurrentlyContext context,

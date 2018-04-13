@@ -42,6 +42,7 @@ import org.slf4j.Logger;
 
 /**
  * Base class for rebalance algorithm
+ * 均衡算法
  */
 public abstract class RebalanceImpl {
     protected static final Logger log = ClientLogger.getLog();

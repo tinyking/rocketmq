@@ -104,6 +104,7 @@ public class DefaultMQPushConsumerImpl implements MQConsumerInner {
     private volatile boolean pause = false;
     private boolean consumeOrderly = false;
     private MessageListener messageListenerInner;
+    //
     private OffsetStore offsetStore;
     private ConsumeMessageService consumeMessageService;
     private long queueFlowControlTimes = 0;
@@ -564,6 +565,7 @@ public class DefaultMQPushConsumerImpl implements MQConsumerInner {
                     this.defaultMQPushConsumer.changeInstanceNameToPID();
                 }
 
+                // TODO 创建client
                 this.mQClientFactory = MQClientManager.getInstance().getAndCreateMQClientInstance(this.defaultMQPushConsumer, this.rpcHook);
 
                 this.rebalanceImpl.setConsumerGroup(this.defaultMQPushConsumer.getConsumerGroup());
@@ -593,6 +595,7 @@ public class DefaultMQPushConsumerImpl implements MQConsumerInner {
                 }
                 this.offsetStore.load();
 
+                // TODO
                 if (this.getMessageListenerInner() instanceof MessageListenerOrderly) {
                     this.consumeOrderly = true;
                     this.consumeMessageService =
@@ -805,6 +808,10 @@ public class DefaultMQPushConsumerImpl implements MQConsumerInner {
         }
     }
 
+    /**
+     *
+     * @throws MQClientException
+     */
     private void copySubscription() throws MQClientException {
         try {
             Map<String, String> sub = this.defaultMQPushConsumer.getSubscription();

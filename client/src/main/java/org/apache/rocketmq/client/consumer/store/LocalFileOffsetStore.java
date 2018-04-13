@@ -58,12 +58,17 @@ public class LocalFileOffsetStore implements OffsetStore {
             "offsets.json";
     }
 
+    /**
+     * 加载本地存储
+     * @throws MQClientException
+     */
     @Override
     public void load() throws MQClientException {
         OffsetSerializeWrapper offsetSerializeWrapper = this.readLocalOffset();
         if (offsetSerializeWrapper != null && offsetSerializeWrapper.getOffsetTable() != null) {
             offsetTable.putAll(offsetSerializeWrapper.getOffsetTable());
 
+            // TODO 打印本地存储的m
             for (MessageQueue mq : offsetSerializeWrapper.getOffsetTable().keySet()) {
                 AtomicLong offset = offsetSerializeWrapper.getOffsetTable().get(mq);
                 log.info("load consumer's offset, {} {} {}",
@@ -180,6 +185,11 @@ public class LocalFileOffsetStore implements OffsetStore {
         return cloneOffsetTable;
     }
 
+    /**
+     * 将文件加载到对象，文件内容为json
+     * @return
+     * @throws MQClientException
+     */
     private OffsetSerializeWrapper readLocalOffset() throws MQClientException {
         String content = null;
         try {

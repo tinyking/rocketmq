@@ -218,6 +218,7 @@ public abstract class NettyRemotingAbstract {
             }
 
             try {
+                // TODO 放到线程池里，回调
                 final RequestTask requestTask = new RequestTask(run, ctx.channel(), cmd);
                 pair.getObject2().submit(requestTask);
             } catch (RejectedExecutionException e) {

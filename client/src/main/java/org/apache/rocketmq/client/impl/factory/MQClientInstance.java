@@ -1194,6 +1194,7 @@ public class MQClientInstance {
         if (null != mqConsumerInner) {
             DefaultMQPushConsumerImpl consumer = (DefaultMQPushConsumerImpl) mqConsumerInner;
 
+            // TODO invoke回调函数，consumer创建时注册的listener
             ConsumeMessageDirectlyResult result = consumer.getConsumeMessageService().consumeMessageDirectly(msg, brokerName);
             return result;
         }

@@ -162,6 +162,7 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
                 }
             });
 
+        // TODO 初始化netty client， bootstrap
         Bootstrap handler = this.bootstrap.group(this.eventLoopGroupWorker).channel(NioSocketChannel.class)
             .option(ChannelOption.TCP_NODELAY, true)
             .option(ChannelOption.SO_KEEPALIVE, false)
@@ -653,6 +654,9 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
         }
     }
 
+    /**
+     * Handler
+     */
     class NettyClientHandler extends SimpleChannelInboundHandler<RemotingCommand> {
 
         @Override
