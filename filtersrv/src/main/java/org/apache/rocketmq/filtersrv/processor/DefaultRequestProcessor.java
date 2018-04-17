@@ -71,6 +71,7 @@ public class DefaultRequestProcessor implements NettyRequestProcessor {
         switch (request.getCode()) {
             case RequestCode.REGISTER_MESSAGE_FILTER_CLASS:
                 return registerMessageFilterClass(ctx, request);
+
             case RequestCode.PULL_MESSAGE:
                 return pullMessageForward(ctx, request);
         }
@@ -109,6 +110,13 @@ public class DefaultRequestProcessor implements NettyRequestProcessor {
         return response;
     }
 
+    /**
+     *
+     * @param ctx
+     * @param request
+     * @return
+     * @throws Exception
+     */
     private RemotingCommand pullMessageForward(final ChannelHandlerContext ctx,
         final RemotingCommand request) throws Exception {
         final RemotingCommand response = RemotingCommand.createResponseCommand(PullMessageResponseHeader.class);

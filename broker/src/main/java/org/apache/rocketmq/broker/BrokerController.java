@@ -100,22 +100,33 @@ public class BrokerController {
 
     // TODO
     private final ConsumerOffsetManager consumerOffsetManager;
+    // 消费者管理器
     private final ConsumerManager consumerManager;
+    // 消费者过滤器管理器
     private final ConsumerFilterManager consumerFilterManager;
+    // 生产者管理器
     private final ProducerManager producerManager;
+    //
     private final ClientHousekeepingService clientHousekeepingService;
+    // 拉取消息处理器
     private final PullMessageProcessor pullMessageProcessor;
     private final PullRequestHoldService pullRequestHoldService;
+    // 消息到达监听器
     private final MessageArrivingListener messageArrivingListener;
+    //
     private final Broker2Client broker2Client;
+    //
     private final SubscriptionGroupManager subscriptionGroupManager;
+    //
     private final ConsumerIdsChangeListener consumerIdsChangeListener;
-
+    //
     private final RebalanceLockManager rebalanceLockManager = new RebalanceLockManager();
     // Netty Client用来和Name Server通信
     private final BrokerOuterAPI brokerOuterAPI;
+    // 定时ES
     private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryImpl(
         "BrokerControllerScheduledThread"));
+    // Slave同步
     private final SlaveSynchronize slaveSynchronize;
     private final BlockingQueue<Runnable> sendThreadPoolQueue;
     private final BlockingQueue<Runnable> pullThreadPoolQueue;
@@ -236,6 +247,8 @@ public class BrokerController {
             NettyServerConfig fastConfig = (NettyServerConfig) this.nettyServerConfig.clone();
             fastConfig.setListenPort(nettyServerConfig.getListenPort() - 2);
             this.fastRemotingServer = new NettyRemotingServer(fastConfig, this.clientHousekeepingService);
+
+            //
             this.sendMessageExecutor = new BrokerFixedThreadPoolExecutor(
                 this.brokerConfig.getSendMessageThreadPoolNums(),
                 this.brokerConfig.getSendMessageThreadPoolNums(),
@@ -411,6 +424,7 @@ public class BrokerController {
         sendProcessor.registerSendMessageHook(sendMessageHookList);
         sendProcessor.registerConsumeMessageHook(consumeMessageHookList);
 
+        // 注册处理器
         this.remotingServer.registerProcessor(RequestCode.SEND_MESSAGE, sendProcessor, this.sendMessageExecutor);
         this.remotingServer.registerProcessor(RequestCode.SEND_MESSAGE_V2, sendProcessor, this.sendMessageExecutor);
         this.remotingServer.registerProcessor(RequestCode.SEND_BATCH_MESSAGE, sendProcessor, this.sendMessageExecutor);

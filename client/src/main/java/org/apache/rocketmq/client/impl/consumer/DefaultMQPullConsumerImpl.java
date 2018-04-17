@@ -416,6 +416,7 @@ public class DefaultMQPullConsumerImpl implements MQConsumerInner {
 
             long timeoutMillis = block ? this.defaultMQPullConsumer.getConsumerTimeoutMillisWhenSuspend() : timeout;
 
+            //
             this.pullAPIWrapper.pullKernelImpl(
                 mq,
                 subscriptionData.getSubString(),

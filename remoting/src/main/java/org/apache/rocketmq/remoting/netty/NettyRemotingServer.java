@@ -270,7 +270,8 @@ public class NettyRemotingServer extends NettyRemotingAbstract implements Remoti
     @Override
     public void registerProcessor(int requestCode, NettyRequestProcessor processor, ExecutorService executor) {
         ExecutorService executorThis = executor;
-        if (null == executor) {
+        // 将executor换成executorThis
+        if (null == executorThis) {
             executorThis = this.publicExecutor;
         }
 

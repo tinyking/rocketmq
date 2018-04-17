@@ -74,6 +74,7 @@ public abstract class NettyRemotingAbstract {
         new ConcurrentHashMap<Integer, ResponseFuture>(256);
 
     /**
+     * 处理器存储容器，每一个请求都会从容器中查找对应的处理器，然后进行相应的处理
      * This container holds all processors per request code, aka, for each incoming request, we may look up the
      * responding processor in this map to handle the request.
      */
@@ -209,6 +210,7 @@ public abstract class NettyRemotingAbstract {
                 }
             };
 
+            // 判断processor是否拒绝请求
             if (pair.getObject1().rejectRequest()) {
                 final RemotingCommand response = RemotingCommand.createResponseCommand(RemotingSysResponseCode.SYSTEM_BUSY,
                     "[REJECTREQUEST]system busy, start flow control for a while");
