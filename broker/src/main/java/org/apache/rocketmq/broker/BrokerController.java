@@ -88,14 +88,22 @@ import org.apache.rocketmq.store.stats.BrokerStatsManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ *
+ */
 public class BrokerController {
     private static final Logger log = LoggerFactory.getLogger(LoggerName.BROKER_LOGGER_NAME);
     private static final Logger LOG_PROTECTION = LoggerFactory.getLogger(LoggerName.PROTECTION_LOGGER_NAME);
     private static final Logger LOG_WATER_MARK = LoggerFactory.getLogger(LoggerName.WATER_MARK_LOGGER_NAME);
 
+    // Broker配置信息
     private final BrokerConfig brokerConfig;
+    // netty server 配置信息，Broker会做为Server，为Producer和Consumer提供服务
     private final NettyServerConfig nettyServerConfig;
+    // netty client 配置信息， Broker会做为client，与Name server通信，注册broker信息等
     private final NettyClientConfig nettyClientConfig;
+
+    // 消息存储配置
     private final MessageStoreConfig messageStoreConfig;
 
     // TODO
@@ -116,17 +124,20 @@ public class BrokerController {
     //
     private final Broker2Client broker2Client;
     //
+    // 订阅
     private final SubscriptionGroupManager subscriptionGroupManager;
     //
     private final ConsumerIdsChangeListener consumerIdsChangeListener;
-    //
+
+    // 负载均衡
     private final RebalanceLockManager rebalanceLockManager = new RebalanceLockManager();
     // Netty Client用来和Name Server通信
     private final BrokerOuterAPI brokerOuterAPI;
-    // 定时ES
+
+    // 定时线程池
     private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryImpl(
         "BrokerControllerScheduledThread"));
-    // Slave同步
+    // 主从同步
     private final SlaveSynchronize slaveSynchronize;
     private final BlockingQueue<Runnable> sendThreadPoolQueue;
     private final BlockingQueue<Runnable> pullThreadPoolQueue;
@@ -137,17 +148,21 @@ public class BrokerController {
     private final BrokerStatsManager brokerStatsManager;
     private final List<SendMessageHook> sendMessageHookList = new ArrayList<SendMessageHook>();
     private final List<ConsumeMessageHook> consumeMessageHookList = new ArrayList<ConsumeMessageHook>();
+
     private MessageStore messageStore;
     private RemotingServer remotingServer;
     private RemotingServer fastRemotingServer;
     private TopicConfigManager topicConfigManager;
+
     private ExecutorService sendMessageExecutor;
     private ExecutorService pullMessageExecutor;
     private ExecutorService queryMessageExecutor;
     private ExecutorService adminBrokerExecutor;
     private ExecutorService clientManageExecutor;
     private ExecutorService consumerManageExecutor;
+
     private boolean updateMasterHAServerAddrPeriodically = false;
+
     private BrokerStats brokerStats;
     private InetSocketAddress storeHost;
     private BrokerFastFailure brokerFastFailure;
@@ -242,7 +257,7 @@ public class BrokerController {
         result = result && this.messageStore.load();
 
         if (result) {
-            // 实例化Nettysever，用于处理晴天
+            // 实例化Nettysever，用于处理请求，
             this.remotingServer = new NettyRemotingServer(this.nettyServerConfig, this.clientHousekeepingService);
             NettyServerConfig fastConfig = (NettyServerConfig) this.nettyServerConfig.clone();
             fastConfig.setListenPort(nettyServerConfig.getListenPort() - 2);

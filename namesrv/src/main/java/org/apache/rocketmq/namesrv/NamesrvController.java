@@ -35,6 +35,9 @@ import org.apache.rocketmq.remoting.netty.NettyServerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Name Server
+ */
 public class NamesrvController {
     private static final Logger log = LoggerFactory.getLogger(LoggerName.NAMESRV_LOGGER_NAME);
 
@@ -56,9 +59,10 @@ public class NamesrvController {
     // Netty Server
     private RemotingServer remotingServer;
 
-
+    //
     private BrokerHousekeepingService brokerHousekeepingService;
 
+    // ES
     private ExecutorService remotingExecutor;
 
     private Configuration configuration;
@@ -89,6 +93,7 @@ public class NamesrvController {
 
         this.kvConfigManager.load();
 
+        // 初始化 netty server
         this.remotingServer = new NettyRemotingServer(this.nettyServerConfig, this.brokerHousekeepingService);
 
         this.remotingExecutor =

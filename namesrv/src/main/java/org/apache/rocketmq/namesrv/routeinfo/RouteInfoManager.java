@@ -148,6 +148,7 @@ public class RouteInfoManager {
                     }
                 }
 
+                // 将broker放入存活的table
                 BrokerLiveInfo prevBrokerLiveInfo = this.brokerLiveTable.put(brokerAddr,
                     new BrokerLiveInfo(
                         System.currentTimeMillis(),
