@@ -84,6 +84,7 @@ public class NamesrvController {
 
         this.registerProcessor();
 
+        // 定时器，定时扫描
         this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
 
             @Override

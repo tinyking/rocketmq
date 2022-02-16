@@ -52,8 +52,11 @@ public class RouteInfoManager {
     private static final InternalLogger log = InternalLoggerFactory.getLogger(LoggerName.NAMESRV_LOGGER_NAME);
     private final static long BROKER_CHANNEL_EXPIRED_TIME = 1000 * 60 * 2;
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
+    // fixme: 管理 topic
     private final HashMap<String/* topic */, List<QueueData>> topicQueueTable;
+    // fixme: 管理 broker
     private final HashMap<String/* brokerName */, BrokerData> brokerAddrTable;
+    // fixme: 管理 cluster
     private final HashMap<String/* clusterName */, Set<String/* brokerName */>> clusterAddrTable;
     private final HashMap<String/* brokerAddr */, BrokerLiveInfo> brokerLiveTable;
     private final HashMap<String/* brokerAddr */, List<String>/* Filter Server */> filterServerTable;
@@ -458,15 +461,21 @@ public class RouteInfoManager {
         return null;
     }
 
+    // fixme: 扫描无效的 broker
     public void scanNotActiveBroker() {
         Iterator<Entry<String, BrokerLiveInfo>> it = this.brokerLiveTable.entrySet().iterator();
         while (it.hasNext()) {
             Entry<String, BrokerLiveInfo> next = it.next();
+            // 获取最后更新的时间戳
             long last = next.getValue().getLastUpdateTimestamp();
+            // 如果更新时间超过 120s，则表示该 broker 非存活状态，将其清除
             if ((last + BROKER_CHANNEL_EXPIRED_TIME) < System.currentTimeMillis()) {
+                // 关闭 channel
                 RemotingUtil.closeChannel(next.getValue().getChannel());
+                // 删除 broker
                 it.remove();
                 log.warn("The broker channel expired, {} {}ms", next.getKey(), BROKER_CHANNEL_EXPIRED_TIME);
+                // 关闭 channel 链接
                 this.onChannelDestroy(next.getKey(), next.getValue().getChannel());
             }
         }
@@ -477,6 +486,7 @@ public class RouteInfoManager {
         if (channel != null) {
             try {
                 try {
+                    // 获取读锁
                     this.lock.readLock().lockInterruptibly();
                     Iterator<Entry<String, BrokerLiveInfo>> itBrokerLiveTable =
                         this.brokerLiveTable.entrySet().iterator();
@@ -488,6 +498,7 @@ public class RouteInfoManager {
                         }
                     }
                 } finally {
+                    // 释放读锁
                     this.lock.readLock().unlock();
                 }
             } catch (Exception e) {

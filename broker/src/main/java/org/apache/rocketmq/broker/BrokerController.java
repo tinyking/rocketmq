@@ -285,6 +285,11 @@ public class BrokerController {
         return queryThreadPoolQueue;
     }
 
+    /**
+     * 初始化 broker
+     * @return
+     * @throws CloneNotSupportedException
+     */
     public boolean initialize() throws CloneNotSupportedException {
         boolean result = this.topicConfigManager.load();
 
@@ -1024,6 +1029,7 @@ public class BrokerController {
             this.registerBrokerAll(true, false, true);
         }
 
+        // fixme: 注册 broker
         this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
 
             @Override
