@@ -21,14 +21,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.rocketmq.client.log.ClientLogger;
-import org.slf4j.Logger;
+import org.apache.rocketmq.logging.InternalLogger;
 
 public final class BeanUtils {
-    final static Logger log = ClientLogger.getLog();
+    static InternalLogger log = ClientLogger.getLog();
 
     /**
      * Maps primitive {@code Class}es to their corresponding wrapper {@code Class}.
@@ -50,10 +51,10 @@ public final class BeanUtils {
     private static Map<Class<?>, Class<?>> wrapperMap = new HashMap<Class<?>, Class<?>>();
 
     static {
-        for (final Class<?> primitiveClass : primitiveWrapperMap.keySet()) {
-            final Class<?> wrapperClass = primitiveWrapperMap.get(primitiveClass);
-            if (!primitiveClass.equals(wrapperClass)) {
-                wrapperMap.put(wrapperClass, primitiveClass);
+        for (Entry<Class<?>, Class<?>> primitiveClass : primitiveWrapperMap.entrySet()) {
+            final Class<?> wrapperClass = primitiveClass.getValue();
+            if (!primitiveClass.getKey().equals(wrapperClass)) {
+                wrapperMap.put(wrapperClass, primitiveClass.getKey());
             }
         }
         wrapperMap.put(String.class, String.class);
@@ -86,7 +87,7 @@ public final class BeanUtils {
     public static <T> T populate(final Properties properties, final Class<T> clazz) {
         T obj = null;
         try {
-            obj = clazz.newInstance();
+            obj = clazz.getDeclaredConstructor().newInstance();
             return populate(properties, obj);
         } catch (Throwable e) {
             log.warn("Error occurs !", e);
@@ -97,7 +98,7 @@ public final class BeanUtils {
     public static <T> T populate(final KeyValue properties, final Class<T> clazz) {
         T obj = null;
         try {
-            obj = clazz.newInstance();
+            obj = clazz.getDeclaredConstructor().newInstance();
             return populate(properties, obj);
         } catch (Throwable e) {
             log.warn("Error occurs !", e);
@@ -164,7 +165,7 @@ public final class BeanUtils {
 
             final Set<String> keySet = properties.keySet();
             for (String key : keySet) {
-                String[] keyGroup = key.split("\\.");
+                String[] keyGroup = key.split("[\\._]");
                 for (int i = 0; i < keyGroup.length; i++) {
                     keyGroup[i] = keyGroup[i].toLowerCase();
                     keyGroup[i] = StringUtils.capitalize(keyGroup[i]);

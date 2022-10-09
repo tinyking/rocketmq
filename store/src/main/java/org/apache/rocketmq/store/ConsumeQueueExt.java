@@ -18,14 +18,15 @@
 package org.apache.rocketmq.store;
 
 import org.apache.rocketmq.common.constant.LoggerName;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.rocketmq.logging.InternalLogger;
+import org.apache.rocketmq.logging.InternalLoggerFactory;
 
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.rocketmq.store.logfile.MappedFile;
 
 /**
  * Extend of consume queue, to store something not important,
@@ -37,7 +38,7 @@ import java.util.List;
  * <li>4. Pls keep this file small.</li>
  */
 public class ConsumeQueueExt {
-    private static final Logger log = LoggerFactory.getLogger(LoggerName.STORE_LOGGER_NAME);
+    private static final InternalLogger log = InternalLoggerFactory.getLogger(LoggerName.STORE_LOGGER_NAME);
 
     private final MappedFileQueue mappedFileQueue;
     private final String topic;
@@ -87,6 +88,10 @@ public class ConsumeQueueExt {
                 bitMapLength / Byte.SIZE
             );
         }
+    }
+
+    public long getTotalSize() {
+        return this.mappedFileQueue.getTotalFileSize();
     }
 
     /**

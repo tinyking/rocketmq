@@ -22,6 +22,7 @@ package org.apache.rocketmq.common.protocol.header.namesrv;
 
 import org.apache.rocketmq.remoting.CommandCustomHeader;
 import org.apache.rocketmq.remoting.annotation.CFNotNull;
+import org.apache.rocketmq.remoting.annotation.CFNullable;
 import org.apache.rocketmq.remoting.exception.RemotingCommandException;
 
 public class RegisterBrokerRequestHeader implements CommandCustomHeader {
@@ -35,6 +36,14 @@ public class RegisterBrokerRequestHeader implements CommandCustomHeader {
     private String haServerAddr;
     @CFNotNull
     private Long brokerId;
+    @CFNullable
+    private Long heartbeatTimeoutMillis;
+    @CFNullable
+    private Boolean enableActingMaster;
+
+    private boolean compressed;
+
+    private Integer bodyCrc32 = 0;
 
     @Override
     public void checkFields() throws RemotingCommandException {
@@ -78,5 +87,37 @@ public class RegisterBrokerRequestHeader implements CommandCustomHeader {
 
     public void setBrokerId(Long brokerId) {
         this.brokerId = brokerId;
+    }
+
+    public Long getHeartbeatTimeoutMillis() {
+        return heartbeatTimeoutMillis;
+    }
+
+    public void setHeartbeatTimeoutMillis(Long heartbeatTimeoutMillis) {
+        this.heartbeatTimeoutMillis = heartbeatTimeoutMillis;
+    }
+
+    public boolean isCompressed() {
+        return compressed;
+    }
+
+    public void setCompressed(boolean compressed) {
+        this.compressed = compressed;
+    }
+
+    public Integer getBodyCrc32() {
+        return bodyCrc32;
+    }
+
+    public void setBodyCrc32(Integer bodyCrc32) {
+        this.bodyCrc32 = bodyCrc32;
+    }
+
+    public Boolean getEnableActingMaster() {
+        return enableActingMaster;
+    }
+
+    public void setEnableActingMaster(Boolean enableActingMaster) {
+        this.enableActingMaster = enableActingMaster;
     }
 }

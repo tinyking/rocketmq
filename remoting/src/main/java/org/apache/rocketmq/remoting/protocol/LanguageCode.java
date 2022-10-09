@@ -28,7 +28,9 @@ public enum LanguageCode {
     OTHER((byte) 7),
     HTTP((byte) 8),
     GO((byte) 9),
-    PHP((byte) 10);
+    PHP((byte) 10),
+    OMS((byte) 11),
+    RUST((byte) 12);
 
     private byte code;
 

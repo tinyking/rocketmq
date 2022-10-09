@@ -24,12 +24,14 @@ import java.util.concurrent.TimeUnit;
 import org.apache.rocketmq.client.impl.factory.MQClientInstance;
 import org.apache.rocketmq.client.log.ClientLogger;
 import org.apache.rocketmq.common.ServiceThread;
+import org.apache.rocketmq.common.message.MessageRequestMode;
 import org.apache.rocketmq.common.utils.ThreadUtils;
-import org.slf4j.Logger;
+import org.apache.rocketmq.logging.InternalLogger;
 
 public class PullMessageService extends ServiceThread {
-    private final Logger log = ClientLogger.getLog();
-    private final LinkedBlockingQueue<PullRequest> pullRequestQueue = new LinkedBlockingQueue<PullRequest>();
+    private final InternalLogger log = ClientLogger.getLog();
+    private final LinkedBlockingQueue<MessageRequest> messageRequestQueue = new LinkedBlockingQueue<MessageRequest>();
+
     private final MQClientInstance mQClientFactory;
     private final ScheduledExecutorService scheduledExecutorService = Executors
         .newSingleThreadScheduledExecutor(new ThreadFactory() {
@@ -44,25 +46,53 @@ public class PullMessageService extends ServiceThread {
     }
 
     public void executePullRequestLater(final PullRequest pullRequest, final long timeDelay) {
-        this.scheduledExecutorService.schedule(new Runnable() {
-
-            @Override
-            public void run() {
-                PullMessageService.this.executePullRequestImmediately(pullRequest);
-            }
-        }, timeDelay, TimeUnit.MILLISECONDS);
+        if (!isStopped()) {
+            this.scheduledExecutorService.schedule(new Runnable() {
+                @Override
+                public void run() {
+                    PullMessageService.this.executePullRequestImmediately(pullRequest);
+                }
+            }, timeDelay, TimeUnit.MILLISECONDS);
+        } else {
+            log.warn("PullMessageServiceScheduledThread has shutdown");
+        }
     }
 
     public void executePullRequestImmediately(final PullRequest pullRequest) {
         try {
-            this.pullRequestQueue.put(pullRequest);
+            this.messageRequestQueue.put(pullRequest);
+        } catch (InterruptedException e) {
+            log.error("executePullRequestImmediately pullRequestQueue.put", e);
+        }
+    }
+
+    public void executePopPullRequestLater(final PopRequest pullRequest, final long timeDelay) {
+        if (!isStopped()) {
+            this.scheduledExecutorService.schedule(new Runnable() {
+                @Override
+                public void run() {
+                    PullMessageService.this.executePopPullRequestImmediately(pullRequest);
+                }
+            }, timeDelay, TimeUnit.MILLISECONDS);
+        } else {
+            log.warn("PullMessageServiceScheduledThread has shutdown");
+        }
+    }
+
+    public void executePopPullRequestImmediately(final PopRequest pullRequest) {
+        try {
+            this.messageRequestQueue.put(pullRequest);
         } catch (InterruptedException e) {
             log.error("executePullRequestImmediately pullRequestQueue.put", e);
         }
     }
 
     public void executeTaskLater(final Runnable r, final long timeDelay) {
-        this.scheduledExecutorService.schedule(r, timeDelay, TimeUnit.MILLISECONDS);
+        if (!isStopped()) {
+            this.scheduledExecutorService.schedule(r, timeDelay, TimeUnit.MILLISECONDS);
+        } else {
+            log.warn("PullMessageServiceScheduledThread has shutdown");
+        }
     }
 
     public ScheduledExecutorService getScheduledExecutorService() {
@@ -79,17 +109,29 @@ public class PullMessageService extends ServiceThread {
         }
     }
 
+    private void popMessage(final PopRequest popRequest) {
+        final MQConsumerInner consumer = this.mQClientFactory.selectConsumer(popRequest.getConsumerGroup());
+        if (consumer != null) {
+            DefaultMQPushConsumerImpl impl = (DefaultMQPushConsumerImpl) consumer;
+            impl.popMessage(popRequest);
+        } else {
+            log.warn("No matched consumer for the PopRequest {}, drop it", popRequest);
+        }
+    }
+
     @Override
     public void run() {
         log.info(this.getServiceName() + " service started");
 
         while (!this.isStopped()) {
             try {
-                PullRequest pullRequest = this.pullRequestQueue.take();
-                if (pullRequest != null) {
-                    this.pullMessage(pullRequest);
+                MessageRequest messageRequest = this.messageRequestQueue.take();
+                if (messageRequest.getMessageRequestMode() == MessageRequestMode.POP) {
+                    this.popMessage((PopRequest)messageRequest);
+                } else {
+                    this.pullMessage((PullRequest)messageRequest);
                 }
-            } catch (InterruptedException e) {
+            } catch (InterruptedException ignored) {
             } catch (Exception e) {
                 log.error("Pull Message Service Run Method exception", e);
             }

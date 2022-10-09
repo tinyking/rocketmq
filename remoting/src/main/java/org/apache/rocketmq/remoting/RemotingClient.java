@@ -31,6 +31,8 @@ public interface RemotingClient extends RemotingService {
 
     List<String> getNameServerAddressList();
 
+    List<String> getAvailableNameSrvList();
+
     RemotingCommand invokeSync(final String addr, final RemotingCommand request,
         final long timeoutMillis) throws InterruptedException, RemotingConnectException,
         RemotingSendRequestException, RemotingTimeoutException;
@@ -49,4 +51,6 @@ public interface RemotingClient extends RemotingService {
     void setCallbackExecutor(final ExecutorService callbackExecutor);
 
     boolean isChannelWritable(final String addr);
+
+    void closeChannels(final List<String> addrList);
 }

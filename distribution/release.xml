@@ -17,7 +17,7 @@
   -->
 <assembly>
     <id>all</id>
-    <includeBaseDirectory>false</includeBaseDirectory>
+    <includeBaseDirectory>true</includeBaseDirectory>
     <formats>
         <format>dir</format>
         <format>tar.gz</format>
@@ -27,7 +27,6 @@
         <fileSet>
             <directory>../</directory>
             <includes>
-                <include>DISCLAIMER</include>
                 <include>README.md</include>
             </includes>
         </fileSet>
@@ -41,7 +40,7 @@
 
         <fileSet>
             <includes>
-                <include>bin/*</include>
+                <include>bin/**</include>
             </includes>
             <fileMode>0755</fileMode>
         </fileSet>
@@ -62,13 +61,12 @@
         <moduleSet>
             <useAllReactorProjects>true</useAllReactorProjects>
             <includes>
+                <include>org.apache.rocketmq:rocketmq-container</include>
                 <include>org.apache.rocketmq:rocketmq-broker</include>
                 <include>org.apache.rocketmq:rocketmq-tools</include>
                 <include>org.apache.rocketmq:rocketmq-client</include>
                 <include>org.apache.rocketmq:rocketmq-namesrv</include>
-                <include>org.apache.rocketmq:rocketmq-filtersrv</include>
                 <include>org.apache.rocketmq:rocketmq-example</include>
-                <include>org.apache.rocketmq:rocketmq-filter</include>
                 <include>org.apache.rocketmq:rocketmq-openmessaging</include>
             </includes>
             <binaries>
@@ -77,6 +75,10 @@
                 <dependencySets>
                     <dependencySet>
                         <outputDirectory>lib/</outputDirectory>
+                        <excludes>
+                            <exclude>io.jaegertracing:jaeger-core</exclude>
+                            <exclude>io.jaegertracing:jaeger-client</exclude>
+                        </excludes>
                     </dependencySet>
                 </dependencySets>
             </binaries>
